@@ -52,8 +52,8 @@ func parseCertificate(certBytes []byte) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-// certExpiresSoon checks the certificate in the given folder and renews it if it is expired or about to expire.
-func certExpiresSoon(certData []byte, maxRemainingDaysBeforeCertExpiry int) (bool, error) {
+// CErtExpiresSoon checks the certificate in the given folder and renews it if it is expired or about to expire.
+func CertExpiresSoon(certData []byte, maxRemainingDaysBeforeCertExpiry int) (bool, error) {
 
 	// Parse the certificate
 	cert, err := parseCertificate(certData)

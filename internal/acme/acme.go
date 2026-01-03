@@ -81,7 +81,7 @@ func getACMERegistration(client *lego.Client, storage ACMEStorage) (*registratio
 	reg, err := storage.LoadRegistration()
 	if err != nil {
 		// If the registration information does not exist, register a new account
-		slog.Error(fmt.Sprintf("error loading ACME registration from S3. Registering user with ACME server: %s", err))
+		slog.Error(fmt.Sprintf("error loading ACME registration from storage. Registering user with ACME server: %s", err))
 		reg, err = client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 		if err != nil {
 			return nil, fmt.Errorf("error registering user with ACME server: %w", err)

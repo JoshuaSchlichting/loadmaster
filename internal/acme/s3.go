@@ -327,7 +327,7 @@ func (s *S3ACMEStorage) UpdateTLS(domainGroup []string) error {
 	}
 
 	slog.Debug("Checking certificate expiry", "domains", domainGroup)
-	timeToRenewCert, err := certExpiresSoon(certData, MaxRemainingDaysBeforeCertExpiry)
+	timeToRenewCert, err := CertExpiresSoon(certData, MaxRemainingDaysBeforeCertExpiry)
 	if err != nil {
 		slog.Error("error checking certificate expiry. Getting new ACME cert...", "error", err)
 		timeToRenewCert = true

@@ -26,7 +26,7 @@ func NewLocalACMEStorage(email, caAuthority string) *LocalACMEStorage {
 }
 
 func (s *LocalACMEStorage) LoadUser(emailAddress string) (DomainUser, error) {
-	filename := fmt.Sprintf("%s.json", emailAddress)
+	filename := filepath.Join(loadmasterHomeDir, fmt.Sprintf("%s.json", emailAddress))
 	userJson, err := os.ReadFile(filename)
 	if err != nil {
 		return DomainUser{}, fmt.Errorf("error reading user file: %s", err)
@@ -38,7 +38,7 @@ func (s *LocalACMEStorage) LoadUser(emailAddress string) (DomainUser, error) {
 	}
 
 	// load the private key
-	keyFilename := fmt.Sprintf("%s.pem", emailAddress)
+	keyFilename := filepath.Join(loadmasterHomeDir, fmt.Sprintf("%s.pem", emailAddress))
 	pemBytes, err := os.ReadFile(keyFilename)
 	if err != nil {
 		return DomainUser{}, fmt.Errorf("error reading private key file: %s", err)
@@ -99,7 +99,7 @@ func (s *LocalACMEStorage) SaveUser(user DomainUser) error {
 
 	// Encode the private key into PEM format
 	privateKeyPem := pem.EncodeToMemory(privateKeyBlock)
-	keyFilename := fmt.Sprintf("%s.pem", user.Email)
+	keyFilename := filepath.Join(loadmasterHomeDir, fmt.Sprintf("%s.pem", user.Email))
 	err = os.WriteFile(keyFilename, privateKeyPem, 0600)
 	if err != nil {
 		return fmt.Errorf("error writing private key to file: %s", err)
@@ -170,7 +170,7 @@ func (s *LocalACMEStorage) UpdateTLS(domainGroup []string) error {
 
 	certData, privateKeyData, err := s.DownloadCert(domainRoot)
 	if err != nil {
-		slog.Error("error while downloading certificates from S3", "error", err)
+		slog.Error("error while downloading certificates from local", "error", err)
 	}
 	certData, privateKeyData, err = renewACMECertificate(renewACMECertificateParams{
 		email:          s.contactEmail,
