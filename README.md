@@ -82,6 +82,15 @@ Example:
 Notes:
 - On startup and on any change to `domains.json`, each group is processed via `storage.UpdateTLS(group)`.
 
+## Building
+
+To build the binary, run:
+```bash
+go build -o loadmaster main.go
+```
+
+> You can always run with `go run .`
+
 ## Running
 
 You can run the binary with optional flags to point at config files and set the ACME challenge port.
