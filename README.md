@@ -4,6 +4,9 @@
 
 A lightweight certificate manager that automates ACME HTTP-01 challenges and renewals for groups of domains. It loads configuration from JSON files, provisions or refreshes certificates, and watches for changes to your domains list to update certificates on the fly. Optional S3-backed storage lets you centralize certificate material; otherwise certificates are stored locally.
 
+> ### tl;dr
+> This program keeps ACME certificates up to date and prefers caching (locally, S3) to request another new certificate so as to not hit rate limits from certificate issuers.
+
 ## How it works
 
 - At startup:
