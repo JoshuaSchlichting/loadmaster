@@ -1,5 +1,7 @@
 # loadmaster
 
+<img src="logo.png" alt="Logo" style="width: 50%;">
+
 A lightweight certificate manager that automates ACME HTTP-01 challenges and renewals for groups of domains. It loads configuration from JSON files, provisions or refreshes certificates, and watches for changes to your domains list to update certificates on the fly. Optional S3-backed storage lets you centralize certificate material; otherwise certificates are stored locally.
 
 ## How it works
