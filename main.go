@@ -25,7 +25,7 @@ func getS3ParamsFromConfig(config *config.AppConfig) acme.NewS3ACMEStorageParams
 func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug, // allow debug
+		Level: slog.LevelDebug,
 	}))
 	slog.SetDefault(logger)
 	var domainsFile string
