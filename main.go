@@ -13,40 +13,6 @@ import (
 	"github.com/joshuaschlichting/loadmaster/internal/config"
 )
 
-func initSelfSignedTLSCerts(domains *config.DomainsConfig) error {
-	for _, domainGroup := range domains.Domains {
-		log.Printf("Generating initial self signed cert for domain group: %v", domainGroup)
-
-		certDir := filepath.Join(os.Getenv("HOME"), ".loadmaster", "certs")
-		entries, readErr := os.ReadDir(certDir)
-		if readErr != nil || len(entries) == 0 {
-			for _, entry := range entries {
-				// if entry is a dir
-				if entry.IsDir() {
-
-				}
-			}
-			expired, expErr := acme.CertExpiresSoon()
-			if expErr != nil {
-				log.Printf("Error checking certificate expiration for %v: %v", domainGroup, expErr)
-			}
-			if !expired {
-				log.Printf("Certificate not expired for %v; skipping self-signed generation", domainGroup)
-				continue
-			}
-			err := acme.GenerateSelfSignedTLSCert(domainGroup)
-			if err != nil {
-				log.Printf("Error obtaining/renewing certificate for %v: %v", domainGroup, err)
-			} else {
-				log.Printf("Successfully processed certificate for %v", domainGroup)
-			}
-		} else {
-			log.Printf("Certificates already exist for %v", domainGroup)
-		}
-	}
-	return nil
-}
-
 func getS3ParamsFromConfig(config *config.AppConfig) acme.NewS3ACMEStorageParams {
 	return acme.NewS3ACMEStorageParams{
 		BucketName:   config.S3.BucketName,
@@ -100,19 +66,13 @@ func main() {
 		log.Printf("Error loading domains: %v", err)
 	} else {
 		log.Printf("Loaded %d domain groups", len(domains.Domains))
-		// Only initialize self-signed certs if none exist in ~/.loadmaster/certs
-		certDir := filepath.Join(os.Getenv("HOME"), ".loadmaster", "certs")
-		entries, readErr := os.ReadDir(certDir)
-		if readErr != nil || len(entries) == 0 {
-			err = initSelfSignedTLSCerts(domains)
+		// Boot behavior: retrieve certs from cache and refresh if expiring; fallback to self-signed only if cache missing.
+		for domainGroup := range domains.Domains {
+			updateErr := storage.UpdateTLS(domains.Domains[domainGroup])
+			if updateErr != nil {
+				log.Printf("UpdateTLS error for %v: %v", domains.Domains[domainGroup], updateErr)
+			}
 		}
-		if err != nil {
-			log.Printf("Error maintaining certificates: %v", err)
-		}
-	}
-
-	for domainGroup := range domains.Domains {
-		storage.UpdateTLS(domains.Domains[domainGroup])
 	}
 
 	// Watch for file changes
@@ -151,6 +111,14 @@ func main() {
 						storage.UpdateTLS(domains.Domains[domainGroup])
 					}
 
+				}
+			}
+		case <-time.After(24 * time.Hour):
+			log.Printf("Refreshing certificates...")
+			for domainGroup := range domains.Domains {
+				updateErr := storage.UpdateTLS(domains.Domains[domainGroup])
+				if updateErr != nil {
+					log.Printf("UpdateTLS error for %v: %v", domains.Domains[domainGroup], updateErr)
 				}
 			}
 		case err, ok := <-watcher.Errors:

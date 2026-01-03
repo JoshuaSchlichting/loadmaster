@@ -18,7 +18,7 @@ type S3Config struct {
 type AppConfig struct {
 	Email        string   `json:"email"`
 	S3           S3Config `json:"s3"`
-	LocalCertDir string   `json:"localCertDir"`
+	LocalCertDir string   `json:"-"`
 	CAAuthority  string   `json:"caAuthority"`
 }
 
@@ -79,9 +79,9 @@ func LoadAppConfig(configFilename, domainsFilename string) (*AppConfig, error) {
 
 		// Write default application config with local and S3 storage settings
 		defaultConfig := AppConfig{
-			Email:        "admin@example.com",
-			LocalCertDir: filepath.Join(DefaultConfigDir, "certs"),
-			CAAuthority:  "https://acme-staging-v02.api.letsencrypt.org/directory",
+			Email: "admin@example.com",
+
+			CAAuthority: "https://acme-staging-v02.api.letsencrypt.org/directory",
 			S3: S3Config{
 				BucketName: "my-certificates",
 				Endpoint:   "",
@@ -114,6 +114,9 @@ func LoadAppConfig(configFilename, domainsFilename string) (*AppConfig, error) {
 		return nil, err
 	}
 
+	if config.LocalCertDir == "" {
+		config.LocalCertDir = filepath.Join(DefaultConfigDir, "certs")
+	}
 	return &config, nil
 }
 

@@ -113,12 +113,18 @@ func (s *LocalACMEStorage) SaveRegistration(reg *registration.Resource) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile("registration.json", data, 0600)
+	// Ensure the certs directory exists (e.g., ~/.loadmaster/certs)
+	if err := os.MkdirAll(localCertDir, 0755); err != nil {
+		return fmt.Errorf("error ensuring certs directory exists: %w", err)
+	}
+	regPath := filepath.Join(localCertDir, "registration.json")
+	return os.WriteFile(regPath, data, 0600)
 }
 
 // Load the registration information from a file
 func (s *LocalACMEStorage) LoadRegistration() (*registration.Resource, error) {
-	data, err := os.ReadFile("registration.json")
+	regPath := filepath.Join(localCertDir, "registration.json")
+	data, err := os.ReadFile(regPath)
 	if err != nil {
 		return nil, err
 	}
@@ -178,6 +184,9 @@ func (s *LocalACMEStorage) UpdateTLS(domainGroup []string) error {
 		caAuthorityURL: s.caAuthority,
 		s:              s,
 	})
+	if err != nil {
+		slog.Error("renewACMECertificate failed", "error", err)
+	}
 	slog.Debug("Checking certificate expiry", "domains", domainGroup)
 
 	if len(certData) == 0 || len(privateKeyData) == 0 {
