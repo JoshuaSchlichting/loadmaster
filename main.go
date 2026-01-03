@@ -83,7 +83,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watcher.Close()
+	defer func() {
+		if err := watcher.Close(); err != nil {
+			log.Printf("Error closing watcher: %v", err)
+		}
+	}()
 
 	err = watcher.Add(domainsFile)
 	if err != nil {
@@ -111,7 +115,9 @@ func main() {
 					log.Printf("Loaded %d domain groups", len(domains.Domains))
 
 					for domainGroup := range domains.Domains {
-						storage.UpdateTLS(domains.Domains[domainGroup])
+						if updateErr := storage.UpdateTLS(domains.Domains[domainGroup]); updateErr != nil {
+							log.Printf("UpdateTLS error for %v: %v", domains.Domains[domainGroup], updateErr)
+						}
 					}
 
 				}

@@ -174,7 +174,8 @@ func (s *LocalACMEStorage) UpdateTLS(domainGroup []string) error {
 
 	domainRoot := domainGroup[0]
 
-	certData, privateKeyData, err := s.DownloadCert(domainRoot)
+	var certData, privateKeyData []byte
+	_, _, err := s.DownloadCert(domainRoot)
 	if err != nil {
 		slog.Error("error while downloading certificates from local", "error", err)
 	}

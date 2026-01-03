@@ -59,7 +59,7 @@ func LoadAppConfig(configFilename, domainsFilename string) (*AppConfig, error) {
 			log.Fatalf("Error writing default domains config: %v", err)
 		}
 		log.Println("Default domains config created.")
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		log.Println("Please edit", domainsFilename, "and restart the application.")
 		os.Exit(1)
 	}
@@ -98,7 +98,7 @@ func LoadAppConfig(configFilename, domainsFilename string) (*AppConfig, error) {
 			log.Fatalf("Error writing default application config: %v", err)
 		}
 		log.Println("Default application config created.")
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		log.Println("Please edit", configFilename, "and restart the application.")
 		os.Exit(1)
 	}
