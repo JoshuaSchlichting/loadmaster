@@ -30,12 +30,15 @@ func main() {
 	slog.SetDefault(logger)
 	var domainsFile string
 	var configFile string
+	var port int
 	flag.StringVar(&domainsFile, "domains", filepath.Join(config.DefaultConfigDir, "domains.json"), "Path to domains configuration file")
 	flag.StringVar(&configFile, "config", filepath.Join(config.DefaultConfigDir, "config.json"), "Path to application configuration file")
+	flag.IntVar(&port, "port", acme.HTTPChallengePort, "ACME HTTP-01 challenge request port")
 	flag.Parse()
 	log.Printf("Starting certificate manager")
 	log.Printf("Domains file: %s", domainsFile)
 	log.Printf("Config file: %s", configFile)
+	acme.HTTPChallengePort = port
 
 	appConfig, err := config.LoadAppConfig(configFile, domainsFile)
 	if err != nil {

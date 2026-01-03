@@ -22,7 +22,7 @@ import (
 const CAAuthorityLetsEncryptStaging = "https://acme-staging-v02.api.letsencrypt.org/directory"
 const CAAuthorityLetsEncryptProduction = "https://acme-v02.api.letsencrypt.org/directory"
 
-const HTTPChallengePort = 5002
+var HTTPChallengePort = 5002
 
 type ACMEStorage interface {
 	SaveCert(domainRoot string, cert, privateKey []byte) error
