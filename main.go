@@ -51,6 +51,7 @@ func main() {
 			log.Fatalf("Error creating local certificate directory: %v", err)
 		}
 	}
+	log.Printf("Certificates will be saved to local directory: %s", appConfig.LocalCertDir)
 
 	var storage acme.ACMEStorage
 
@@ -59,6 +60,8 @@ func main() {
 		storage, err = acme.NewS3ACMEStorage(s3Params)
 		if err != nil {
 			log.Printf("Error creating S3 storage: %v", err)
+		} else {
+			log.Printf("Certificates will be saved to S3 bucket: %s", appConfig.S3.BucketName)
 		}
 	} else {
 		storage = acme.NewLocalACMEStorage(appConfig.Email, appConfig.CAAuthority)
