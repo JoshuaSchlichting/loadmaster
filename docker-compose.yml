@@ -19,12 +19,3 @@ services:
     #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     #   - AWS_REGION=${AWS_REGION}
     restart: unless-stopped
-    # Optional: Set memory and CPU limits
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.5'
-    #       memory: 256M
-    #     reservations:
-    #       cpus: '0.25'
-    #       memory: 128M
