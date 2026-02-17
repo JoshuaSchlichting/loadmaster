@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+LICENSE
+logo.png
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+loadmaster
+
+# Config and certs (will be mounted at runtime)
+config/
+certs/
+.loadmaster/

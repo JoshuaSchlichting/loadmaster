@@ -167,19 +167,19 @@ Create your `config/config.json` and `config/domains.json` files (see Configurat
 Then start the service:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 To view logs:
 
 ```bash
-docker-compose logs -f loadmaster
+docker compose logs -f loadmaster
 ```
 
 To stop the service:
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 **Note:** The Docker Compose setup mounts:
