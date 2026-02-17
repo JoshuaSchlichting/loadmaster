@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  loadmaster:
+    build: .
+    image: loadmaster:latest
+    container_name: loadmaster
+    ports:
+      - "5002:5002"
+    volumes:
+      # Mount configuration files
+      - ./config/config.json:/app/config/config.json:ro
+      - ./config/domains.json:/app/config/domains.json:ro
+      # Mount certificate directory (read-write for storing certificates)
+      - ./certs:/app/certs
+    # Optional: If using S3, you can pass AWS credentials via environment variables
+    # environment:
+    #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    #   - AWS_REGION=${AWS_REGION}
+    restart: unless-stopped
+    # Optional: Set memory and CPU limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 256M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 128M
