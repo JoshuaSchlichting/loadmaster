@@ -115,6 +115,80 @@ Behavior:
 - Watches `domains.json` for writes/creates with a short delay to ensure complete writes.
 - Every 24 hours, triggers a refresh pass for all domain groups.
 
+## Running with Docker
+
+### Building the Docker image
+
+You can build the Docker image using the provided Dockerfile:
+
+```bash
+docker build -t loadmaster:latest .
+```
+
+### Running with Docker
+
+To run loadmaster in a Docker container, you need to mount your configuration files and certificate directory:
+
+```bash
+docker run -d \
+  --name loadmaster \
+  -p 5002:5002 \
+  -v $(pwd)/config/config.json:/app/config/config.json:ro \
+  -v $(pwd)/config/domains.json:/app/config/domains.json:ro \
+  -v $(pwd)/certs:/app/certs \
+  loadmaster:latest
+```
+
+If you're using S3 for storage, pass AWS credentials as environment variables:
+
+```bash
+docker run -d \
+  --name loadmaster \
+  -p 5002:5002 \
+  -v $(pwd)/config/config.json:/app/config/config.json:ro \
+  -v $(pwd)/config/domains.json:/app/config/domains.json:ro \
+  -v $(pwd)/certs:/app/certs \
+  -e AWS_ACCESS_KEY_ID=your_access_key \
+  -e AWS_SECRET_ACCESS_KEY=your_secret_key \
+  -e AWS_REGION=us-east-1 \
+  loadmaster:latest
+```
+
+### Running with Docker Compose
+
+A `docker-compose.yml` file is provided for easier deployment. First, create the necessary directory structure:
+
+```bash
+mkdir -p config certs
+```
+
+Create your `config/config.json` and `config/domains.json` files (see Configuration section above for examples).
+
+Then start the service:
+
+```bash
+docker compose up -d
+```
+
+To view logs:
+
+```bash
+docker compose logs -f loadmaster
+```
+
+To stop the service:
+
+```bash
+docker compose down
+```
+
+**Note:** The Docker Compose setup mounts:
+- `./config/config.json` and `./config/domains.json` as read-only configuration files
+- `./certs` as a read-write volume for certificate storage
+- Port `5002` for ACME HTTP-01 challenges
+
+If using S3 storage, uncomment the `environment` section in `docker-compose.yml` and provide your AWS credentials.
+
 ## Example NGINX proxy for ACME challenges
 
 ```nginx
