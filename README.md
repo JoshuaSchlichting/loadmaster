@@ -127,17 +127,21 @@ docker build -t loadmaster:latest .
 
 ### Running with Docker
 
-To run loadmaster in a Docker container, you need to mount your configuration files and certificate directory:
+To run loadmaster in a Docker container, mount your configuration and certificate directories:
 
 ```bash
 docker run -d \
   --name loadmaster \
   -p 5002:5002 \
-  -v $(pwd)/config/config.json:/app/config/config.json:ro \
-  -v $(pwd)/config/domains.json:/app/config/domains.json:ro \
-  -v $(pwd)/certs:/app/certs \
+  -v $(pwd)/config:/config \
+  -v $(pwd)/certs:/certs \
   loadmaster:latest
 ```
+
+The container expects:
+- `/config/config.json` - application configuration
+- `/config/domains.json` - domain list
+- `/certs` - certificate storage (read-write)
 
 If you're using S3 for storage, pass AWS credentials as environment variables:
 
@@ -145,9 +149,8 @@ If you're using S3 for storage, pass AWS credentials as environment variables:
 docker run -d \
   --name loadmaster \
   -p 5002:5002 \
-  -v $(pwd)/config/config.json:/app/config/config.json:ro \
-  -v $(pwd)/config/domains.json:/app/config/domains.json:ro \
-  -v $(pwd)/certs:/app/certs \
+  -v $(pwd)/config:/config \
+  -v $(pwd)/certs:/certs \
   -e AWS_ACCESS_KEY_ID=your_access_key \
   -e AWS_SECRET_ACCESS_KEY=your_secret_key \
   -e AWS_REGION=us-east-1 \
@@ -183,8 +186,8 @@ docker compose down
 ```
 
 **Note:** The Docker Compose setup mounts:
-- `./config/config.json` and `./config/domains.json` as read-only configuration files
-- `./certs` as a read-write volume for certificate storage
+- `./config` directory to `/config` (contains `config.json` and `domains.json`)
+- `./certs` directory to `/certs` for certificate storage
 - Port `5002` for ACME HTTP-01 challenges
 
 If using S3 storage, uncomment the `environment` section in `docker-compose.yml` and provide your AWS credentials.
