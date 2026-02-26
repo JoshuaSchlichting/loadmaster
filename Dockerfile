@@ -35,9 +35,9 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /build/loadmaster /app/loadmaster
 
-# Create directories for configuration and certificates at root level for easy mounting
-RUN mkdir -p /config /certs && \
-    chown -R loadmaster:loadmaster /app /config /certs
+# Create directory for certificates
+RUN mkdir -p /certs && \
+    chown -R loadmaster:loadmaster /app /certs
 
 # Switch to non-root user
 USER loadmaster
@@ -47,4 +47,4 @@ EXPOSE 5002
 
 # Run the application
 ENTRYPOINT ["/app/loadmaster"]
-CMD ["-config", "/config/config.json", "-domains", "/config/domains.json", "-port", "5002"]
+CMD ["-config", "/config.json", "-domains", "/domains.json", "-port", "5002"]
