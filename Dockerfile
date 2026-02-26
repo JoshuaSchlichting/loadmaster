@@ -46,4 +46,5 @@ USER loadmaster
 EXPOSE 5002
 
 # Run the application
-CMD ["/app/loadmaster", "-config", "/config/config.json", "-domains", "/config/domains.json", "-port", "5002"]
+ENTRYPOINT ["/app/loadmaster"]
+CMD ["-config", "/config/config.json", "-domains", "/config/domains.json", "-port", "5002"]
