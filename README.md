@@ -98,13 +98,15 @@ You can run the binary with optional flags to point at config files and set the 
 Flags:
 - `-domains` (string): Path to `domains.json`. Default: `~/.loadmaster/domains.json`.
 - `-config` (string): Path to `config.json`. Default: `~/.loadmaster/config.json`.
+- `-certs` (string): Path to certificates directory. Default: `~/.loadmaster/certs`.
 - `-port` (int): Port to serve ACME HTTP-01 challenges. Default: `5002`.
 
 Example:
-```/dev/null/run.sh#L1-3
+```/dev/null/run.sh#L1-5
 ./loadmaster \
   -config "$HOME/.loadmaster/config.json" \
   -domains "$HOME/.loadmaster/domains.json" \
+  -certs "$HOME/.loadmaster/certs" \
   -port 5002
 ```
 

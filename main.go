@@ -30,9 +30,11 @@ func main() {
 	slog.SetDefault(logger)
 	var domainsFile string
 	var configFile string
+	var certsDir string
 	var port int
 	flag.StringVar(&domainsFile, "domains", filepath.Join(config.DefaultConfigDir, "domains.json"), "Path to domains configuration file")
 	flag.StringVar(&configFile, "config", filepath.Join(config.DefaultConfigDir, "config.json"), "Path to application configuration file")
+	flag.StringVar(&certsDir, "certs", "", "Path to certificates directory (default: ~/.loadmaster/certs)")
 	flag.IntVar(&port, "port", acme.HTTPChallengePort, "ACME HTTP-01 challenge request port")
 	flag.Parse()
 	log.Printf("Starting certificate manager")
@@ -44,6 +46,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading application config: %v", err)
 	}
+
+	// Override LocalCertDir if --certs flag is provided
+	if certsDir != "" {
+		appConfig.LocalCertDir = certsDir
+	}
+	log.Printf("Certs directory: %s", appConfig.LocalCertDir)
+
+	// Set the global localCertDir in the acme package
+	acme.SetLocalCertDir(appConfig.LocalCertDir)
 
 	if _, err := os.Stat(appConfig.LocalCertDir); os.IsNotExist(err) {
 		err := os.MkdirAll(appConfig.LocalCertDir, 0755)
