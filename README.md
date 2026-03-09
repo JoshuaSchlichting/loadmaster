@@ -96,23 +96,30 @@ go build -o loadmaster main.go
 You can run the binary with optional flags to point at config files and set the ACME challenge port.
 
 Flags:
-- `-domains` (string): Path to `domains.json`. Default: `~/.loadmaster/domains.json`.
-- `-config` (string): Path to `config.json`. Default: `~/.loadmaster/config.json`.
-- `-certs` (string): Path to certificates directory. Default: `~/.loadmaster/certs`.
+- `-data` (string): Base data directory for config, domains, certs, and ACME user data. Default: `~/.loadmaster`.
+- `-domains` (string): Path to `domains.json`. Default: `<data>/domains.json`.
+- `-config` (string): Path to `config.json`. Default: `<data>/config.json`.
+- `-certs` (string): Path to certificates directory. Default: `<data>/certs`.
 - `-port` (int): Port to serve ACME HTTP-01 challenges. Default: `5002`.
 
 Example:
+```/dev/null/run.sh#L1-3
+./loadmaster \
+  -data "$HOME/.loadmaster" \
+  -port 5002
+```
+
+Individual paths can still be overridden:
 ```/dev/null/run.sh#L1-5
 ./loadmaster \
-  -config "$HOME/.loadmaster/config.json" \
-  -domains "$HOME/.loadmaster/domains.json" \
-  -certs "$HOME/.loadmaster/certs" \
+  -data /var/lib/loadmaster \
+  -certs /etc/ssl/loadmaster \
   -port 5002
 ```
 
 Behavior:
 - Logs startup info and file paths.
-- Ensures `LocalCertDir` exists (default `~/.loadmaster/certs`).
+- Ensures the certs directory exists (default `<data>/certs`).
 - Loads domains and processes each group.
 - Watches `domains.json` for writes/creates with a short delay to ensure complete writes.
 - Every 24 hours, triggers a refresh pass for all domain groups.
@@ -129,21 +136,22 @@ docker build -t loadmaster:latest .
 
 ### Running with Docker
 
-To run loadmaster in a Docker container, mount your configuration and certificate directories:
+To run loadmaster in a Docker container, mount a single data directory containing your config files:
 
 ```bash
 docker run -d \
   --name loadmaster \
   -p 5002:5002 \
-  -v $(pwd)/config:/config \
-  -v $(pwd)/certs:/certs \
+  -v $(pwd)/data:/data \
   loadmaster:latest
 ```
 
-The container expects:
-- `/config/config.json` - application configuration
-- `/config/domains.json` - domain list
-- `/certs` - certificate storage (read-write)
+The container expects the following inside the data directory:
+- `config.json` - application configuration
+- `domains.json` - domain list
+- `certs/` - certificate storage (created automatically)
+
+ACME user registration files are also stored in the data directory.
 
 If you're using S3 for storage, pass AWS credentials as environment variables:
 
@@ -151,8 +159,7 @@ If you're using S3 for storage, pass AWS credentials as environment variables:
 docker run -d \
   --name loadmaster \
   -p 5002:5002 \
-  -v $(pwd)/config:/config \
-  -v $(pwd)/certs:/certs \
+  -v $(pwd)/data:/data \
   -e AWS_ACCESS_KEY_ID=your_access_key \
   -e AWS_SECRET_ACCESS_KEY=your_secret_key \
   -e AWS_REGION=us-east-1 \
@@ -164,10 +171,10 @@ docker run -d \
 A `docker-compose.yml` file is provided for easier deployment. First, create the necessary directory structure:
 
 ```bash
-mkdir -p config certs
+mkdir -p data
 ```
 
-Create your `config/config.json` and `config/domains.json` files (see Configuration section above for examples).
+Create your `data/config.json` and `data/domains.json` files (see Configuration section above for examples).
 
 Then start the service:
 
@@ -188,11 +195,10 @@ docker compose down
 ```
 
 **Note:** The Docker Compose setup mounts:
-- `./config` directory to `/config` (contains `config.json` and `domains.json`)
-- `./certs` directory to `/certs` for certificate storage
+- `./data` directory to `/data` (contains `config.json`, `domains.json`, `certs/`, and ACME user data)
 - Port `5002` for ACME HTTP-01 challenges
 
-If using S3 storage, uncomment the `environment` section in `docker-compose.yml` and provide your AWS credentials.
+If using S3 storage, add an `environment` section in `docker-compose.yml` and provide your AWS credentials.
 
 ## Example NGINX proxy for ACME challenges
 

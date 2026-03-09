@@ -28,16 +28,29 @@ func main() {
 		Level: slog.LevelDebug,
 	}))
 	slog.SetDefault(logger)
+	var dataDir string
 	var domainsFile string
 	var configFile string
 	var certsDir string
 	var port int
-	flag.StringVar(&domainsFile, "domains", filepath.Join(config.DefaultConfigDir, "domains.json"), "Path to domains configuration file")
-	flag.StringVar(&configFile, "config", filepath.Join(config.DefaultConfigDir, "config.json"), "Path to application configuration file")
-	flag.StringVar(&certsDir, "certs", "", "Path to certificates directory (default: ~/.loadmaster/certs)")
+	flag.StringVar(&dataDir, "data", config.DefaultConfigDir, "Base data directory for config, domains, certs, and ACME user data")
+	flag.StringVar(&domainsFile, "domains", "", "Path to domains configuration file")
+	flag.StringVar(&configFile, "config", "", "Path to application configuration file")
+	flag.StringVar(&certsDir, "certs", "", "Path to certificates directory")
 	flag.IntVar(&port, "port", acme.HTTPChallengePort, "ACME HTTP-01 challenge request port")
 	flag.Parse()
+
+	acme.SetDataDir(dataDir)
+
+	if configFile == "" {
+		configFile = filepath.Join(dataDir, "config.json")
+	}
+	if domainsFile == "" {
+		domainsFile = filepath.Join(dataDir, "domains.json")
+	}
+
 	log.Printf("Starting certificate manager")
+	log.Printf("Data directory: %s", dataDir)
 	log.Printf("Domains file: %s", domainsFile)
 	log.Printf("Config file: %s", configFile)
 	acme.HTTPChallengePort = port
@@ -47,9 +60,10 @@ func main() {
 		log.Fatalf("Error loading application config: %v", err)
 	}
 
-	// Override LocalCertDir if --certs flag is provided
 	if certsDir != "" {
 		appConfig.LocalCertDir = certsDir
+	} else {
+		appConfig.LocalCertDir = filepath.Join(dataDir, "certs")
 	}
 	log.Printf("Certs directory: %s", appConfig.LocalCertDir)
 

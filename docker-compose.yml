@@ -6,13 +6,5 @@ services:
     ports:
       - "5002:5002"
     volumes:
-      # Mount configuration directory
-      - ./config:/config:ro
-      # Mount certificate directory (read-write for storing certificates)
-      - ./certs:/certs
-    # Optional: If using S3, you can pass AWS credentials via environment variables
-    # environment:
-    #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-    #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    #   - AWS_REGION=${AWS_REGION}
+      - ./data:/data
     restart: unless-stopped

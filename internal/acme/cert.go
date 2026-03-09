@@ -15,8 +15,11 @@ import (
 var loadmasterHomeDir = path.Join(os.Getenv("HOME"), ".loadmaster")
 var localCertDir = filepath.Join(loadmasterHomeDir, "certs")
 
-// SetLocalCertDir sets the directory where certificates are stored.
-// This allows overriding the default ~/.loadmaster/certs directory.
+func SetDataDir(dir string) {
+	loadmasterHomeDir = dir
+	localCertDir = filepath.Join(dir, "certs")
+}
+
 func SetLocalCertDir(dir string) {
 	localCertDir = dir
 }

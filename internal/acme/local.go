@@ -75,6 +75,10 @@ func (s *LocalACMEStorage) LoadUser(emailAddress string) (DomainUser, error) {
 func (s *LocalACMEStorage) SaveUser(user DomainUser) error {
 	slog.Debug("saving ACME user", "user", user, "registration", user.Registration)
 
+	if err := os.MkdirAll(loadmasterHomeDir, 0755); err != nil {
+		return fmt.Errorf("error ensuring loadmaster home directory exists: %w", err)
+	}
+
 	userJson, err := json.Marshal(user)
 	if err != nil {
 		return fmt.Errorf("error marshalling user: %s", err)
