@@ -2,7 +2,39 @@
 
 <img src="logo.png" alt="Logo" style="width: 50%;">
 
-A lightweight certificate manager that automates ACME HTTP-01 challenges and renewals for groups of domains. It loads configuration from JSON files, provisions or refreshes certificates, and watches for changes to your domains list to update certificates on the fly. Optional S3-backed storage lets you centralize certificate material; otherwise certificates are stored locally.
+A lightweight certificate manager that automates ACME HTTP-01 challenges and renewals for groups of domains. It loads configuration from JSON files, provisions or refreshes certificates, and watches for changes to your domains list to update certificates on the fly. Optional S3‑backed storage lets you centralize certificate material; otherwise certificates are stored locally.
+
+## Importing as a public package
+
+The core logic has been moved to the module root so that you can import it directly:
+
+```go
+import "github.com/joshuaschlichting/loadmaster"
+```
+
+Typical usage:
+
+```go
+import (
+    "github.com/joshuaschlichting/loadmaster"
+)
+
+func main() {
+    cfg := loadmaster.Config{
+        DataDir:            "/var/lib/loadmaster",
+        HTTPChallengePort:  5002,
+    }
+    lm, err := loadmaster.New(cfg)
+    if err != nil {
+        log.Fatalf("initialising LoadMaster: %v", err)
+    }
+    if err := lm.Start(); err != nil {
+        log.Fatalf("run failed: %v", err)
+    }
+}
+```
+
+This example shows how to construct the configuration, initialise the `LoadMaster` instance, and start the long‑running certificate‑management loop. The library handles configuration loading, storage selection, domain processing, and file‑watching internally.
 
 > ### tl;dr
 > This program keeps ACME certificates up to date and prefers caching (locally, S3) to request another new certificate so as to not hit rate limits from certificate issuers.
